@@ -20,6 +20,7 @@ $comparison="";
 $slr="";
 $PCA = FALSE;
 $volcano = FALSE;
+$heat = FALSE;
 $lists = FALSE;
 $Qual = FALSE;
 $Trim = FALSE;
@@ -73,6 +74,7 @@ if(isset($_POST["slr"]))
 }
 $PCA = isset($_POST["PCA"]);
 $volcano = isset($_POST["volcano"]);
+$heat = isset($_POST["heat"]);
 $lists = isset($_POST["diff"]);
 $Qual = isset($_POST["QUALITY"]);
 $Trim = isset($_POST["TRIM"]);
@@ -109,9 +111,9 @@ if (!$sftp->login($_POST["username"], $_POST["password"])) {
 
 if($PCA)
 {
-	$pcaFile = "".$sDir2."/RNAseqOut/figures/pca/PCA.png"."";
+	$pcaFile = "".$sDir2."/RNAseqOut/figures/pca/PCA.eps"."";
 	echo $pcaFile;
-	$downloadName = $proName."_PCA.png";
+	$downloadName = $proName."_PCA.eps";
 	$sftp->get($pcaFile, $downloadName);
 
 	echo '<iframe src="individualDownload.php?file='.$downloadName.'"></iframe>';
@@ -130,6 +132,15 @@ if($PCA)
 	unlink($downloadName);
 	*/
 }
+if($heat)
+{
+	$heatFile = "".$sDir2."/RNAseqOut/heatmap.eps"."";
+	echo $heatFile;
+	$downloadName = $proName."_heatmap.eps";
+	$sftp->get($heatFile, $downloadName);
+
+	echo '<iframe src="individualDownload.php?file='.$downloadName.'"></iframe>';
+}
 
 foreach ($cArray as $comp) {
 	$coArray = explode("_",$comp);
@@ -137,8 +148,8 @@ foreach ($cArray as $comp) {
 	$c2 = $coArray[1];
 	if($volcano)
 	{
-		$vFile = "".$sDir2."/RNAseqOut/results/".$atArray[$c1]."_vs_".$atArray[$c2]."/".$atArray[$c1]."_vs_".$atArray[$c2].".png";
-		$downloadName = $atArray[$c1]."_vs_".$atArray[$c2].".png";
+		$vFile = "".$sDir2."/RNAseqOut/results/".$atArray[$c1]."_vs_".$atArray[$c2]."/".$atArray[$c1]."_vs_".$atArray[$c2].".eps";
+		$downloadName = $atArray[$c1]."_vs_".$atArray[$c2].".eps";
 		$sftp->get($vFile, $downloadName);
 
 		echo '<iframe src="individualDownload.php?file='.$downloadName.'"></iframe>';
