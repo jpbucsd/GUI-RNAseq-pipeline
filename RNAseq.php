@@ -36,6 +36,7 @@ $minutes=0;
 $seconds=0;
 $useGenes=0;
 $HuseGenes=0;
+$submit = TRUE;
 $geneList="";
 
 if(isset($_POST["proName"]))
@@ -155,6 +156,8 @@ if(isset($_POST["EMAIL"]))
 	$email = $_POST["EMAIL"];
 }
 
+$submit = isset($_POST["sub"]);
+
 #create the slr
 
 $slr = array();
@@ -220,19 +223,35 @@ $slr = array();
 	{
 		$chars = str_split($cArray[$i]);
 		$indexI = 0;
-		$splitI = 0;
+		$splitI = -1;
+		$split2 = -1;
+		$split3 = -1;
 		foreach ($chars as $char) {
 			if($char == '_')
 			{
-				$splitI = $indexI; 
+				if($splitI == -1)
+				{
+					$splitI = $indexI;
+				}elseif($split2 == -1)
+				{
+					$split2 = $indexI;
+				}elseif($split3 == -1)
+				{
+					$split3 = $indexI;
+				}				
+				 
 			}
 			$indexI = $indexI + 1;
 		}
 		$at1 = substr($cArray[$i],0,$splitI);
 
-		$at2 = substr($cArray[$i],$splitI + 1);
+		$at2 = substr($cArray[$i],$splitI + 1,$split2);
+
+		$at3 = substr($cArray[$i],$split2 + 1,$split3);
+
+		$at4 = substr($cArray[$i],$split3 + 1);
 		
-		$slr[] = "Comparison:\\t".$at1."\\t".$at2;
+		$slr[] = "Comparison:\\t".$at1."\\t".$at2."\\t".$at3."\\t".$at4;
 	}
 
 	#add pairing info to slr
@@ -439,11 +458,14 @@ $slr = array();
 	}
 
 	#submit qsub
-	#TODO, last step
 	$submitCMD = "qsub ".$qsubFname."\n";
-	#echo $submitCMD;
-	#$ssh->write($submitCMD);
-	#$ssh->read('');
+	if($submit)
+	{
+		echo $submitCMD;
+		$ssh->write($submitCMD);
+		$ssh->read('');
+	}
+	
 
 	echo "<title>Sun Lab RNAseq</title>";
 	#produce invisible form and check status update button

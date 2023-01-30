@@ -71,6 +71,7 @@ if(isset($_POST["step"])){
 		echo "<table id=\"fileAssignment\"><tbody><tr><th>File</th><th>Attribute</th></tr></tbody><tbody id='sfile'>";
 		echo "</tbody></table>";
 
+		echo "<div hidden='hidden' class='info'>Differential expression analysis will be performed for each comparison.<br>To select which attributes will be compared, change the first two options below. If you would like to create a comparison within a subset of the samples, ( for example: sample A vs. B at time 24 hours in cell line a), select up to two parameters to be used as a subset as the second two inputs. If you do not want to use a subset leave these as N/A.</div>";
 		#creating comparisons among attributes
 		echo "<table id=\"comparisons\"><tbody><tr><th>Create Comparison: </th><th><select id='c1' name='c1'>";
 		#for loop to add each attribute as an option
@@ -82,6 +83,18 @@ if(isset($_POST["step"])){
 		for($i = 0, $size = count($aArray); $i < $size; ++$i)
 		{
 			echo "<option id = 'c2_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
+		}
+		echo "</select></th><th>within</th><th><select id='c3' name='c3'>";
+		echo "<option id = 'c3_-1' value='-1'>N/A - no intersection</option>";
+		for($i = 0, $size = count($aArray); $i < $size; ++$i)
+		{
+			echo "<option id = 'c3_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
+		}
+		echo "</select></th><th>within</th><th><select id='c4' name='c4'>";
+		echo "<option id = 'c4_-1' value='-1'>N/A - no intersection</option>";
+		for($i = 0, $size = count($aArray); $i < $size; ++$i)
+		{
+			echo "<option id = 'c4_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
 		}
 		echo "</select></th><th><button onClick='compare()'>Add Comparison</button></th></tr></tbody><tbody id='cStorage'></tbody></table>";
 			
@@ -165,7 +178,7 @@ if(isset($_POST["step"])){
 		function compare()
 		{
 			nComps += 1;
-			document.getElementById('cStorage').innerHTML += \"<tr id='comparison\" + nComps + \"'><td id='\" + nComps + \"_c1' value='\" + document.getElementById('c1').value + \"'>\" + document.getElementById('c1_' + document.getElementById('c1').value).innerHTML + \"</td><td id='\" + nComps + \"_c1_val' hidden='hidden'>\" + document.getElementById('c1').value + \"</td><td>vs.</td><td id='\" + nComps + \"_c2' value='\" + document.getElementById('c2').value + \"'>\" + document.getElementById('c2_' + document.getElementById('c2').value).innerHTML + \"</td><td id='\" + nComps + \"_c2_val' hidden='hidden'>\" + document.getElementById('c2').value + \"</td><td><button onClick='removeC(\" + nComps + \")'>Remove</button></td></tr>\";
+			document.getElementById('cStorage').innerHTML += \"<tr id='comparison\" + nComps + \"'><td id='\" + nComps + \"_c1' value='\" + document.getElementById('c1').value + \"'>\" + document.getElementById('c1_' + document.getElementById('c1').value).innerHTML + \"</td><td id='\" + nComps + \"_c1_val' hidden='hidden'>\" + document.getElementById('c1').value + \"</td><td>vs.</td><td id='\" + nComps + \"_c2' value='\" + document.getElementById('c2').value + \"'>\" + document.getElementById('c2_' + document.getElementById('c2').value).innerHTML + \"</td><td id='\" + nComps + \"_c2_val' hidden='hidden'>\" + document.getElementById('c2').value + \"</td><td>Within</td><td id='\" + nComps + \"_c3' value='\" + document.getElementById('c3').value + \"'>\" + document.getElementById('c3_' + document.getElementById('c3').value).innerHTML + \"</td><td id='\" + nComps + \"_c3_val' hidden='hidden'>\" + document.getElementById('c3').value + \"</td><td>Within</td><td id='\" + nComps + \"_c4' value='\" + document.getElementById('c4').value + \"'>\" + document.getElementById('c4_' + document.getElementById('c4').value).innerHTML + \"</td><td id='\" + nComps + \"_c4_val' hidden='hidden'>\" + document.getElementById('c4').value + \"</td><td><button onClick='removeC(\" + nComps + \")'>Remove</button></td></tr>\";			
 		}
 		function removeC(idx)
 		{
@@ -192,7 +205,7 @@ if(isset($_POST["step"])){
 			var compString = \"\";
 			for(var i = 1; i < document.getElementById(\"cStorage\").rows.length + 1; i++)
 			{
-				compString += document.getElementById(i + '_c1_val').innerHTML + '_' + document.getElementById(i + '_c2_val').innerHTML + '?_?';
+				compString += document.getElementById(i + '_c1_val').innerHTML + '_' + document.getElementById(i + '_c2_val').innerHTML + '_' + document.getElementById(i + '_c3_val').innerHTML + '_' + document.getElementById(i + '_c4_val').innerHTML + '?_?';
 			}
 			document.getElementById(\"compStore\").value = compString.slice(0,-3);
 
@@ -205,4 +218,17 @@ if(isset($_POST["step"])){
 	
 
 }
+echo "</div><div id='body2' ></div><style>
+.info{
+	background: #91A5B4;
+	border-radius: 25px;
+	width:600px;
+	padding: 25px;
+	margin-top: 5px;
+  	margin-bottom: 5px;
+  	margin-right: 5px;
+  	margin-left: 5px;
+	color: white;
+}
+</style>";
 ?>
