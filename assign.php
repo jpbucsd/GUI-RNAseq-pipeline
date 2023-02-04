@@ -73,29 +73,25 @@ if(isset($_POST["step"])){
 
 		echo "<div hidden='hidden' class='info'>Differential expression analysis will be performed for each comparison.<br>To select which attributes will be compared, change the first two options below. If you would like to create a comparison within a subset of the samples, ( for example: sample A vs. B at time 24 hours in cell line a), select up to two parameters to be used as a subset as the second two inputs. If you do not want to use a subset leave these as N/A.</div>";
 		#creating comparisons among attributes
-		echo "<table id=\"comparisons\"><tbody><tr><th>Create Comparison: </th><th><select id='c1' name='c1'>";
+		echo "<table id=\"comparisons\"><tbody><tr><th hidden='hidden' id='cSequence'>12</th><th>Create Comparison: </th><th><select id='c1' name='c1'>";
 		#for loop to add each attribute as an option
 		for($i = 0, $size = count($aArray); $i < $size; ++$i)
 		{
-			echo "<option id = 'c1_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
+			echo "<option id = 'c_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
 		}
 		echo "</select></th><th>vs.</th><th><select id='c2' name='c2'>";
 		for($i = 0, $size = count($aArray); $i < $size; ++$i)
 		{
-			echo "<option id = 'c2_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
+			echo "<option id = 'c_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
 		}
-		echo "</select></th><th>within</th><th><select id='c3' name='c3'>";
-		echo "<option id = 'c3_-1' value='-1'>N/A - no intersection</option>";
-		for($i = 0, $size = count($aArray); $i < $size; ++$i)
-		{
-			echo "<option id = 'c3_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
-		}
-		echo "</select></th><th>within</th><th><select id='c4' name='c4'>";
-		echo "<option id = 'c4_-1' value='-1'>N/A - no intersection</option>";
-		for($i = 0, $size = count($aArray); $i < $size; ++$i)
-		{
-			echo "<option id = 'c4_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
-		}
+		#adding the button to create intersections and what not
+		echo "</select></th><th id='insertRegion'></th><th><button onClick='addCondition()'>Add Condition: </button></th><th><select id = 'cCondition' name='cCondition'>";
+		echo "<option id = 'cN' value='cN' selected>Choose Condition</option>";
+		echo "<option id = 'cA' value='cA'>Or - Comparison 1</option>";
+		echo "<option id = 'cB' value='cB'>Or - Comparison 2</option>";
+		echo "<option id = 'cC' value='cC'>And - Comparison 1</option>";
+		echo "<option id = 'cD' value='cD'>And - Comparison 2</option>";
+
 		echo "</select></th><th><button onClick='compare()'>Add Comparison</button></th></tr></tbody><tbody id='cStorage'></tbody></table>";
 			
 		#submitting
@@ -178,7 +174,90 @@ if(isset($_POST["step"])){
 		function compare()
 		{
 			nComps += 1;
-			document.getElementById('cStorage').innerHTML += \"<tr id='comparison\" + nComps + \"'><td id='\" + nComps + \"_c1' value='\" + document.getElementById('c1').value + \"'>\" + document.getElementById('c1_' + document.getElementById('c1').value).innerHTML + \"</td><td id='\" + nComps + \"_c1_val' hidden='hidden'>\" + document.getElementById('c1').value + \"</td><td>vs.</td><td id='\" + nComps + \"_c2' value='\" + document.getElementById('c2').value + \"'>\" + document.getElementById('c2_' + document.getElementById('c2').value).innerHTML + \"</td><td id='\" + nComps + \"_c2_val' hidden='hidden'>\" + document.getElementById('c2').value + \"</td><td>Within</td><td id='\" + nComps + \"_c3' value='\" + document.getElementById('c3').value + \"'>\" + document.getElementById('c3_' + document.getElementById('c3').value).innerHTML + \"</td><td id='\" + nComps + \"_c3_val' hidden='hidden'>\" + document.getElementById('c3').value + \"</td><td>Within</td><td id='\" + nComps + \"_c4' value='\" + document.getElementById('c4').value + \"'>\" + document.getElementById('c4_' + document.getElementById('c4').value).innerHTML + \"</td><td id='\" + nComps + \"_c4_val' hidden='hidden'>\" + document.getElementById('c4').value + \"</td><td><button onClick='removeC(\" + nComps + \")'>Remove</button></td></tr>\";			
+
+			attrs = document.getElementById('cSequence').innerHTML;
+			storage = \"<tr id='comparison\" + nComps + \"'><td id='sequence\" + nComps + \"' hidden='hidden'>\" + attrs + \"</td>\";
+			for (let i = 0; i < attrs.length; i++) {
+				switch(attrs[i].value) {
+					case \"1\":
+    						break;
+					case \"2\":
+						storage += \"<td> vs. </td>\";
+    						break;
+					case \"A\":
+						storage += \"<td>, parameter 1 union: </td>\";
+    						break;
+					case \"B\":
+						storage += \"<td>, parameter 2 union: </td>\";
+    						break;
+					case \"C\":
+						storage += \"<td>, parameter 1 intersection: </td>\";
+    						break;
+					case \"D\":
+						storage += \"<td>, parameter 2 intersection: </td>\";
+    						break;
+  					default:
+						break;
+				}
+				j = i + 1;
+				id = 'c' + j;
+				console.log(id);
+				storage += \"<td id='\" + nComps + \"_c\" + j + \"' value='\" + document.getElementById(id).value + \"'>\" + document.getElementById('c_' + document.getElementById(id).value).innerHTML + \"</td><td id='\" + nComps + \"_\" + id + \"_val' hidden='hidden'>\" + document.getElementById(id).value + \"</td>\";
+			}
+			//TODO, this needs to be fixed based on the specific row. suggestion: read the csequence, and add terms based on that in a for loop.
+			//purpuse of union with c1, this means c1 can either be from the orignal sample or this one.
+			//purpose of interesection: all variables must be within this that are being compared
+			//purpose of union: all variables must be within this or any other union term that are being compared. same as intersection for one term]
+
+			//we need to remove the extra comparison parameters
+			const extras = document.getElementsByClassName('extras');
+    			while(extras.length > 0){
+        			extras[0].parentNode.removeChild(extras[0]);
+    			}
+			document.getElementById('cSequence').innerHTML = '12';
+			storage += \"<td><button onClick='removeC(\" + nComps + \")'>Remove</button></td></tr>\";
+
+			
+			document.getElementById('cStorage').innerHTML += storage;
+		}
+		function addCondition()
+		{
+			var len = document.getElementById('cSequence').innerHTML.length + 1;
+			selectList = \"\";
+			console.log(document.getElementById('cSequence').innerHTML);
+			switch(document.getElementById('cCondition').value) {
+				case 'cN':
+    					break;
+				case 'cA':
+   	 				selectList += \"<a class='extras'> union with attribute 1: </a><select class='extras' id='c\" + len + \"' name='c\" + len + \"'>\";
+					selectList += document.getElementById('c1').innerHTML;//adds all the options
+					selectList += \"</select>\";
+					document.getElementById('cSequence').innerHTML += \"A\";
+    					break;
+				case 'cB':
+					selectList += \"<a class='extras'> union with attribute 2: </a><select class='extras' id='c\" + len + \"' name='c\" + len + \"'>\";
+					selectList += document.getElementById('c1').innerHTML;//adds all the options
+					selectList += \"</select>\";
+					document.getElementById('cSequence').innerHTML += \"B\";
+    					break;
+				case 'cC':
+					selectList += \"<a class='extras'> intersection with attribute 1: </a><select class='extras' id='c\" + len + \"' name='c\" + len + \"'>\";
+					selectList += document.getElementById('c1').innerHTML;//adds all the options
+					selectList += \"</select>\";
+					document.getElementById('cSequence').innerHTML += \"C\";
+    					break;
+				case 'cD':
+					selectList += \"<a class = 'extras'> intersection with attribute 1: </a><select class='extras' id='c\" + len + \"' name='c\" + len + \"'>\";
+					selectList += document.getElementById('c1').innerHTML;//adds all the options
+					selectList += \"</select>\";
+					document.getElementById('cSequence').innerHTML += \"D\";
+    					break;
+  				default:
+					break;
+			}
+			console.log(selectList);
+			document.getElementById('insertRegion').innerHTML += selectList;
+
 		}
 		function removeC(idx)
 		{
@@ -205,10 +284,17 @@ if(isset($_POST["step"])){
 			var compString = \"\";
 			for(var i = 1; i < document.getElementById(\"cStorage\").rows.length + 1; i++)
 			{
-				compString += document.getElementById(i + '_c1_val').innerHTML + '_' + document.getElementById(i + '_c2_val').innerHTML + '_' + document.getElementById(i + '_c3_val').innerHTML + '_' + document.getElementById(i + '_c4_val').innerHTML + '?_?';
+				compAttrs = document.getElementById('sequence' + i).innerHTML;
+				compString += compAttrs + '_';
+				for (let j = 1; j < compAttrs.length + 1; j++) {
+					compString += document.getElementById(i + '_c' + j + '_val').innerHTML + '_';
+				}
+				compString = compString.slice(0,-1)
+				compString += '?_?';
 			}
 			document.getElementById(\"compStore\").value = compString.slice(0,-3);
-
+			console.log(\"string:\");
+			console.log(compString.slice(0,-3));			
 			document.getElementById(\"next\").action = \"parameters.php\";
 			document.getElementById(\"next\").submit();
 		}

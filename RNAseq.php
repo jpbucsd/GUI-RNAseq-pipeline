@@ -221,37 +221,13 @@ $slr = array();
 	$cArray = explode("?_?",$comparison);
 	for($i = 0, $size = count($cArray); $i < $size; ++$i)
 	{
-		$chars = str_split($cArray[$i]);
-		$indexI = 0;
-		$splitI = -1;
-		$split2 = -1;
-		$split3 = -1;
-		foreach ($chars as $char) {
-			if($char == '_')
-			{
-				if($splitI == -1)
-				{
-					$splitI = $indexI;
-				}elseif($split2 == -1)
-				{
-					$split2 = $indexI;
-				}elseif($split3 == -1)
-				{
-					$split3 = $indexI;
-				}				
-				 
-			}
-			$indexI = $indexI + 1;
+		$strline = "Comparison:";
+		$ccArray = explode("_",$cArray[$i] ?? '');
+		for($j = 0, $size = count($ccArray); $j < $size; ++$j)
+		{
+			$strline = $strline."\\t".$ccArray[$j];
 		}
-		$at1 = substr($cArray[$i],0,$splitI);
-
-		$at2 = substr($cArray[$i],$splitI + 1,$split2);
-
-		$at3 = substr($cArray[$i],$split2 + 1,$split3);
-
-		$at4 = substr($cArray[$i],$split3 + 1);
-		
-		$slr[] = "Comparison:\\t".$at1."\\t".$at2."\\t".$at3."\\t".$at4;
+		$slr[] = $strline;
 	}
 
 	#add pairing info to slr
