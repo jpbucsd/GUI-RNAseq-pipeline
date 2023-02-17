@@ -73,13 +73,13 @@ if(isset($_POST["step"])){
 
 		echo "<div hidden='hidden' class='info'>Differential expression analysis will be performed for each comparison.<br>To select which attributes will be compared, change the first two options below. If you would like to create a comparison within a subset of the samples, ( for example: sample A vs. B at time 24 hours in cell line a), select up to two parameters to be used as a subset as the second two inputs. If you do not want to use a subset leave these as N/A.</div>";
 		#creating comparisons among attributes
-		echo "<table id=\"comparisons\"><tbody><tr><th hidden='hidden' id='cSequence'>12</th><th>Create Comparison: </th><th><select id='c1' name='c1'>";
+		echo "<table id=\"comparisons\"><tbody><tr><th hidden='hidden' id='cSequence'>12</th><th>Create Comparison: </th><th>name: <input type ='text' name='c1name'></th><th><select id='c1' name='c1'>";
 		#for loop to add each attribute as an option
 		for($i = 0, $size = count($aArray); $i < $size; ++$i)
 		{
 			echo "<option id = 'c_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
 		}
-		echo "</select></th><th>vs.</th><th><select id='c2' name='c2'>";
+		echo "</select></th><th>vs.</th><th>name: <input type ='text' name='c2name'></th><th><select id='c2' name='c2'>";
 		for($i = 0, $size = count($aArray); $i < $size; ++$i)
 		{
 			echo "<option id = 'c_",$i,"' value='",$i,"'>",$aArray[$i],"</option>";
@@ -175,8 +175,8 @@ if(isset($_POST["step"])){
 		{
 			nComps += 1;
 
-			attrs = document.getElementById('cSequence').innerHTML;
-			storage = \"<tr id='comparison\" + nComps + \"'><td id='sequence\" + nComps + \"' hidden='hidden'>\" + attrs + \"</td>\";
+			attrs = document.('cSequence').innerHTML;
+			storage = \"<tr id='comparison\" + nComps + \"'><td id='sequence\" + nComps + \"' hidden='hidden'>\" + attrs + \"</td><td id='n\" + nComps + \"name1' hidden='hidden'>\" + document.getElementById('c1name').value + \"</td><td id='n\" + nComps + \"name2' hidden='hidden'>\" + document.getElementById('c2name').value + \"</td>\";
 			for (let i = 0; i < attrs.length; i++) {
 				switch(attrs[i].value) {
 					case \"1\":
@@ -285,7 +285,13 @@ if(isset($_POST["step"])){
 			for(var i = 1; i < document.getElementById(\"cStorage\").rows.length + 1; i++)
 			{
 				compAttrs = document.getElementById('sequence' + i).innerHTML;
-				compString += compAttrs + '_';
+				names1 = document.getElementById('n' + i + 'name1').innerHTML;
+				names2 = document.getElementById('n' + i + 'name2').innerHTML;
+				names1 = names1.replace('_','-');
+				names1 = names1.replace(' ','-');
+				names2 = names2.replace('_','-');
+				names2 = names2.replace(' ','-');
+				compString += compAttrs + '_' + names1 + '_' + names2 + '_';
 				for (let j = 1; j < compAttrs.length + 1; j++) {
 					compString += document.getElementById(i + '_c' + j + '_val').innerHTML + '_';
 				}
